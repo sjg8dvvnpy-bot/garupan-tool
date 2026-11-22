@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ガルパン最終章 設定判別ツール</title>
+<style>
+  :root{--bg:#101318;--card:#1a1e25;--line:#2a303a;--text:#eef1f5;--sub:#97a1ad;--acc:#f0a830;--acc2:#3d9bff;--ng:#e5554f;--ok:#3fbf78;--yel:#f2c94c}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{ -webkit-text-size-adjust:100%; touch-action:manipulation }
+  button, input, summary, .chip, .seg{ touch-action:manipulation }
+  button{cursor:pointer; -webkit-appearance:none; appearance:none; user-select:none; -webkit-user-select:none}
+  input{font-family:inherit; -webkit-appearance:none; appearance:none}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;font-size:15px;line-height:1.45;padding-bottom:84px}
+  .top{position:sticky;top:0;z-index:5;background:rgba(16,19,24,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 14px 8px}
+  .top h1{font-size:15px;margin:0 0 6px}
+  .mini{display:flex;gap:8px;align-items:stretch}
+  .mini .m{flex:1;background:#0c0f13;border-radius:10px;padding:6px 8px}
+  .mini .k{font-size:11px;color:var(--sub)}
+  .mini .v{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+  .mini .sig{flex:0 0 76px;text-align:center}
+  .spark{display:flex;gap:3px;align-items:flex-end;height:30px;margin-top:2px}
+  .spark i{flex:1;background:var(--acc2);border-radius:3px 3px 0 0;min-height:2px}
+  .spark i.h{background:var(--acc)}
+  .lamp{display:inline-block;width:16px;height:16px;border-radius:50%;background:#333;vertical-align:middle;margin:0 2px}
+  .lamp.y{background:var(--yel)} .lamp.r{background:var(--ng)}
+  section{background:var(--card);margin:10px 12px;border-radius:14px;padding:12px 14px;border:1px solid var(--line)}
+  h2{font-size:14px;margin:0 0 8px;color:var(--acc)}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line)}
+  .row:first-of-type{border-top:none}
+  .lbl{flex:1;min-width:0}.lbl b{display:block;font-weight:600}.lbl span{color:var(--sub);font-size:12px}
+  .ctr{display:flex;align-items:center;gap:6px}
+  .ctr button{width:46px;height:46px;border-radius:12px;border:none;font-size:22px;font-weight:700;color:#fff;background:#343a44}
+  .ctr button.plus{background:var(--acc2)}
+  .ctr .num{min-width:42px;text-align:center;font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
+  .ctr.sm button{width:38px;height:38px;font-size:18px}.ctr.sm .num{min-width:28px;font-size:17px}
+  input[type=number]{width:118px;height:46px;border-radius:12px;border:1px solid var(--line);background:#0c0f13;color:var(--text);font-size:20px;text-align:right;padding:0 10px}
+  .gbtns{display:flex;gap:6px;margin-top:8px}
+  .gbtns button{flex:1;height:40px;border-radius:10px;border:none;background:#343a44;color:#fff;font-size:14px;font-weight:600}
+  .seg{display:flex;background:#0c0f13;border-radius:10px;padding:3px;gap:3px}
+  .seg button{flex:1;height:36px;border:none;border-radius:8px;background:transparent;color:var(--sub);font-size:13px;font-weight:600}
+  .seg button.on{background:var(--acc2);color:#fff}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:1px solid var(--line);background:#0c0f13;color:var(--text);border-radius:999px;padding:9px 12px;font-size:13px}
+  .chip.on{background:var(--acc);border-color:var(--acc);color:#111;font-weight:700}
+  .grp{margin-top:10px}.grp .gt{font-size:12px;color:var(--sub);margin-bottom:6px}
+  .bars .b{display:flex;align-items:center;gap:8px;margin:7px 0}
+  .bars .s{width:46px;font-weight:700}
+  .bars .track{flex:1;height:22px;background:#0c0f13;border-radius:6px;overflow:hidden}
+  .bars .fill{height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .25s}
+  .bars .pct{width:56px;text-align:right;font-variant-numeric:tabular-nums}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{padding:5px 3px;border-bottom:1px solid var(--line);text-align:right}
+  th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:600}
+  .note{color:var(--sub);font-size:12px;margin-top:6px}
+  .warn{color:var(--ng);font-size:12px;margin-top:6px}
+  .big{width:100%;min-height:54px;border-radius:12px;border:none;font-size:16px;font-weight:800;color:#111;background:var(--yel);margin-top:10px}
+  .log{margin-top:10px}
+  .log .it{display:flex;justify-content:space-between;align-items:center;background:#0c0f13;border-radius:10px;padding:8px 10px;margin-top:6px;font-size:13px}
+  .log .it button{background:transparent;border:1px solid var(--line);color:var(--sub);border-radius:8px;padding:4px 8px}
+  .switch{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:13px}
+  .switch input{width:46px;height:26px}
+  .reset{width:100%;height:46px;border-radius:12px;border:1px solid var(--ng);background:transparent;color:var(--ng);font-size:15px;font-weight:700}
+  .reset.armed{background:var(--ng);color:#fff}
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;background:#0c0f13;border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  nav button{flex:1;height:52px;border:none;background:transparent;color:var(--sub);font-size:12px;font-weight:700;border-radius:10px}
+  nav button .ic{display:block;font-size:18px}
+  nav button.on{color:#fff;background:#1f2631}
+  .tab{display:none}.tab.on{display:block}
+  details summary{color:var(--sub);font-size:13px;cursor:pointer}
+  footer{color:var(--sub);font-size:11px;padding:4px 16px 20px}
+</style>
+
+<style id="theme-senshado">
+  /* 戦車道テーマ（オリジナルデザイン。作品のキャラクター・ロゴは使用していません） */
+  :root{--bg:#171a12;--card:#232919;--line:#3a422c;--text:#f2edd9;--sub:#aaa88c;--acc:#e8b13a;--acc2:#5f7d2c;--ng:#d9563f;--ok:#7fbf4a;--yel:#f0c341;
+    --well:#11140c;--btn:#38402a;--tank:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 36%22%3E%3Cpath d=%22M48 9h15%22 stroke=%22%232b3020%22 stroke-width=%223%22 fill=%22none%22/%3E%3Cpath d=%22M22 8q2-5 10-5h10q6 0 8 5v6H22z%22 fill=%22%237d8f45%22/%3E%3Crect x=%2226%22 y=%225%22 width=%2210%22 height=%223%22 rx=%221.5%22 fill=%22%23a9b86a%22/%3E%3Cpath d=%22M6 14h52l4 6H2z%22 fill=%22%236b7c3a%22/%3E%3Cpath d=%22M2 20h60v4H2z%22 fill=%22%2356652d%22/%3E%3Crect x=%222%22 y=%2223%22 width=%2260%22 height=%2211%22 rx=%225.5%22 fill=%22%232b3020%22/%3E%3Cg fill=%22%238e9a6a%22%3E%3Ccircle cx=%229%22 cy=%2228.5%22 r=%223.6%22/%3E%3Ccircle cx=%2219%22 cy=%2228.5%22 r=%223.6%22/%3E%3Ccircle cx=%2229%22 cy=%2228.5%22 r=%223.6%22/%3E%3Ccircle cx=%2239%22 cy=%2228.5%22 r=%223.6%22/%3E%3Ccircle cx=%2249%22 cy=%2228.5%22 r=%223.6%22/%3E%3Ccircle cx=%2257%22 cy=%2228.5%22 r=%223%22/%3E%3C/g%3E%3Ccircle cx=%2253%22 cy=%2211%22 r=%221.6%22 fill=%22%23e8b13a%22/%3E%3C/svg%3E");--camo:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22240%22 viewBox=%220 0 240 240%22%3E%3Cg fill-opacity=%22.09%22%3E%3Cpath fill=%22%23a9b86a%22 d=%22M10 30q30-26 60-6t40 40-30 50-60-4-10-80z%22/%3E%3Cpath fill=%22%23c9b27a%22 d=%22M140 10q50-10 80 20t-10 60-70 0-0-80z%22/%3E%3Cpath fill=%22%235b6b2f%22 d=%22M120 130q40-20 80 10t10 70-60 20-50-40 20-60z%22/%3E%3Cpath fill=%22%23c9b27a%22 d=%22M20 160q30-10 50 20t-10 50-50-10 10-60z%22/%3E%3Cpath fill=%22%23a9b86a%22 d=%22M90 90q20-10 30 10t-20 20-10-30z%22/%3E%3C/g%3E%3C/svg%3E")}
+  body{background-color:var(--bg);background-image:var(--camo);background-attachment:fixed}
+  .top{background:rgba(23,26,18,.96);border-bottom:none;padding-bottom:12px}
+  .top::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:8px;
+    background:repeating-linear-gradient(90deg,#2b3020 0 10px,#4a5436 10px 13px);border-top:1px solid #0c0e08;border-bottom:1px solid #0c0e08}
+  .top h1{display:flex;align-items:center;gap:8px;letter-spacing:.06em}
+  .top h1::before{content:"";width:40px;height:23px;background:var(--tank) center/contain no-repeat;flex:0 0 auto}
+  .top h1 small{margin-left:auto;font-size:10px;letter-spacing:.18em;color:var(--acc);border:1px solid var(--acc);border-radius:4px;padding:1px 6px}
+  .mini .m{background:var(--well);border:1px solid #2a3120}
+  .spark i{background:var(--acc2)} .spark i.h{background:var(--acc)}
+  .lamp{background:#2e3324;box-shadow:inset 0 0 0 2px #0c0e08}
+  section{position:relative;background:linear-gradient(180deg,#283020,#20261a);border:1px solid #475236;border-radius:10px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 2px 0 #0c0e08}
+  section::before,section::after{content:"";position:absolute;top:7px;width:5px;height:5px;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,#8e9a6a,#3a422c);box-shadow:0 0 0 1px #11140c}
+  section::before{left:7px} section::after{right:7px}
+  h2{letter-spacing:.04em;padding-left:8px;border-left:3px solid var(--acc)}
+  .ctr button{background:var(--btn);border-radius:8px;box-shadow:0 2px 0 #0c0e08}
+  .ctr button.plus{background:var(--acc2)}
+  .ctr button:active,.gbtns button:active{transform:translateY(2px);box-shadow:none}
+  input[type=number]{background:var(--well);border-radius:8px;font-family:ui-monospace,Menlo,monospace}
+  .ctr .num{font-family:ui-monospace,Menlo,monospace}
+  .gbtns button{background:var(--btn);border-radius:8px;box-shadow:0 2px 0 #0c0e08}
+  .seg{background:var(--well);border-radius:8px}
+  .seg button.on{background:var(--acc2)}
+  .chip{background:var(--well)}
+  .chip.on{color:#1a1d12}
+  .bars .track{background:var(--well);border-radius:4px;height:24px;
+    background-image:repeating-linear-gradient(90deg,transparent 0 22px,rgba(255,255,255,.04) 22px 24px)}
+  .bars .fill{position:relative;background:linear-gradient(90deg,#4a5f22,var(--acc2) 60%,#9aa84f);overflow:visible}
+  .bars .track{overflow:hidden}
+  .bars .fill::after{content:"";position:absolute;right:-1px;top:3px;width:30px;height:18px;background:var(--tank) right center/contain no-repeat}
+  .big{border-radius:8px;color:#1a1d12;box-shadow:0 3px 0 #0c0e08;
+    background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.08) 0 10px,transparent 10px 20px)}
+  #add200ok{background:#3d4a2a !important;background-image:none;color:#f2edd9 !important}
+  .log .it{background:var(--well);border-left:3px solid var(--acc2)}
+  nav{background:#11140c;border-top:none}
+  nav::before{content:"";position:absolute;left:0;right:0;top:-6px;height:6px;background:repeating-linear-gradient(90deg,#2b3020 0 10px,#4a5436 10px 13px)}
+  nav button.on{color:#1a1d12;background:var(--acc)}
+  .reset{border-radius:8px}
+  footer .unoff{display:block;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>ガルパン最終章 設定判別<small>戦車道</small></h1>
+  <div class="mini">
+    <div class="m"><div class="k">設定4以上</div><div class="v" id="mHi">—</div></div>
+    <div class="m"><div class="k">期待設定</div><div class="v" id="mEx">—</div></div>
+    <div class="m"><div class="k">設定1〜6</div><div class="spark" id="mSpark"></div></div>
+    <div class="m sig"><div class="k">200G信号</div><div id="mSig"><span class="lamp"></span><span class="lamp"></span></div></div>
+  </div>
+</div>
+
+<!-- ① カウント -->
+<div class="tab on" id="t-count">
+  <section>
+    <h2>通常時の総ゲーム数</h2>
+    <div class="row">
+      <div class="lbl"><b>通常時G数</b><span>CZ・AT・ボーナス中は含めない</span></div>
+      <input type="number" id="games" inputmode="numeric" min="0" value="0">
+    </div>
+    <div class="gbtns"><button data-add="-100">−100</button><button data-add="100">+100</button><button data-add="500">+500</button><button data-add="1000">+1000</button></div>
+  </section>
+  <section>
+    <h2>CZ・AT</h2>
+    <div class="row"><div class="lbl"><b>CZ回数</b><span>チャンス・レース・ボコ・あんこう無双の合計</span></div>
+      <div class="ctr"><button data-c="cz" data-d="-1">−</button><div class="num" id="n_cz">0</div><button class="plus" data-c="cz" data-d="1">＋</button></div></div>
+    <div class="row"><div class="lbl"><b>AT（戦車道）初当たり</b><span>CZ成功からの当選回数</span></div>
+      <div class="ctr"><button data-c="at" data-d="-1">−</button><div class="num" id="n_at">0</div><button class="plus" data-c="at" data-d="1">＋</button></div></div>
+    <div class="note">CZ 1/133.9〜1/118.9、AT 1/408.6〜1/303.0（設定1〜6）。ATはCZの成功率（約32.8%〜39.2%）として計算します。</div>
+  </section>
+  <section>
+    <h2>朝イチ（設定変更が分かるとき）</h2>
+    <div class="lbl"><span>設定変更後、最初のCZの種類（レースは設定1 29.7%〜設定6 50.0%）</span></div>
+    <div class="seg" id="segFirst" style="margin-top:8px">
+      <button data-v="">使わない</button><button data-v="chance">チャンス</button><button data-v="race">レース</button>
+    </div>
+  </section>
+  <section>
+    <h2>ガルパンレース勝利時のキャラ</h2>
+    <div class="row"><div class="lbl"><b>レース勝利回数</b></div>
+      <div class="ctr sm"><button data-c="rw" data-d="-1">−</button><div class="num" id="n_rw">0</div><button class="plus" data-c="rw" data-d="1">＋</button></div></div>
+    <div class="row"><div class="lbl"><b>うち「まほ」</b><span>設定1 10.9%〜設定6 13.9%（差は小さめ）</span></div>
+      <div class="ctr sm"><button data-c="maho" data-d="-1">−</button><div class="num" id="n_maho">0</div><button class="plus" data-c="maho" data-d="1">＋</button></div></div>
+  </section>
+</div>
+
+<!-- ② 200G判定 -->
+<div class="tab" id="t-200">
+  <section>
+    <h2>200G以降の連続演出失敗（動画の最重要ポイント）</h2>
+    <div class="note" style="margin-top:0">CZ間200〜299Gで、レア役やベル7回からの<b>連続演出に失敗（CZに行かない）</b>したら記録します。200〜299Gでベル7回が2回目なのにCZに当たらなかった場合も同じです。<br>
+    これが起きるのは、0〜199Gの弱チェ・連続演出失敗で一度も状態が上がらなかったときだけで、低設定ほど起きやすくなります。</div>
+    <div class="grp"><div class="gt">この区間のスタート</div>
+      <div class="seg" id="segStart"><button data-v="at">AT終了後</button><button data-v="cz">CZ失敗後・朝イチ</button></div></div>
+    <div class="row" style="margin-top:6px"><div class="lbl"><b>0〜99Gの弱チェ＋連続演出失敗</b><span>よくある回数：AT後4回／CZ後3回</span></div>
+      <div class="ctr sm"><button data-k="k1" data-d="-1">−</button><div class="num" id="k1">4</div><button class="plus" data-k="k1" data-d="1">＋</button></div></div>
+    <div class="row"><div class="lbl"><b>100〜199Gの弱チェ＋連続演出失敗</b></div>
+      <div class="ctr sm"><button data-k="k2" data-d="-1">−</button><div class="num" id="k2">4</div><button class="plus" data-k="k2" data-d="1">＋</button></div></div>
+    <div class="note" id="prev"></div>
+    <button class="big" id="add200">失敗した（CZに行かなかった）</button>
+    <button class="big" id="add200ok" >失敗せずに通過（200G以降でCZ当選・300G到達）</button>
+    <div class="switch"><span>判別の計算に入れる</span><input type="checkbox" id="use200" checked></div>
+    <div class="note">200Gを越えた区間は、<b>失敗しなかったときも「通過」で記録</b>してください。失敗だけを記録すると低設定寄りに出すぎます（検証で確認済み）。<br>上の信号は動画の目安（失敗1回で黄、2回で見切り）です。</div>
+    <div class="warn" id="w200" hidden></div>
+    <div class="log" id="log200"></div>
+  </section>
+</div>
+
+<!-- ③ 示唆 -->
+<div class="tab" id="t-hint">
+  <section>
+    <h2>確定系の示唆（出たらタップ）</h2>
+    <div class="grp"><div class="gt">設定2以上</div><div class="chips" data-g="2"></div></div>
+    <div class="grp"><div class="gt">設定3以上</div><div class="chips" data-g="3"></div></div>
+    <div class="grp"><div class="gt">設定4以上</div><div class="chips" data-g="4"></div></div>
+    <div class="grp"><div class="gt">設定5以上</div><div class="chips" data-g="5"></div></div>
+    <div class="grp"><div class="gt">設定6</div><div class="chips" data-g="6"></div></div>
+    <div class="warn" id="conflict" hidden>選んだ示唆どうしが矛盾しています。</div>
+  </section>
+  <section>
+    <h2>参考メモ（計算には入れません）</h2>
+    <div class="row"><div class="lbl"><b>AT後2回目のCZでAT</b><span>2回目スルー天井：設定1 9.8%〜設定6 24.6%（AT単発後・継続高校敗北後は除く）</span></div>
+      <div class="ctr sm"><button data-c="t2" data-d="-1">−</button><div class="num" id="n_t2">0</div><button class="plus" data-c="t2" data-d="1">＋</button></div></div>
+    <div class="row"><div class="lbl"><b>CZ一発成功（小役4回未満でAT）</b><span>2回目以降のCZ開始時一発成功：設定1 0.8%〜設定6 10.2%</span></div>
+      <div class="ctr sm"><button data-c="ip" data-d="-1">−</button><div class="num" id="n_ip">0</div><button class="plus" data-c="ip" data-d="1">＋</button></div></div>
+    <div class="row"><div class="lbl"><b>高設定示唆（終了画面 弱／強）</b></div>
+      <div class="ctr sm"><button data-c="hs" data-d="-1">−</button><div class="num" id="n_hs">0</div><button class="plus" data-c="hs" data-d="1">＋</button></div></div>
+    <div class="note">これらはATの回数と重なる・出現率が出ていないなどの理由で計算から外し、メモとして残せるようにしています。</div>
+  </section>
+</div>
+
+<!-- ④ 結果 -->
+<div class="tab" id="t-res">
+  <section>
+    <h2>設定別の可能性</h2>
+    <div class="bars" id="bars"></div>
+    <div class="note" id="hint"></div>
+  </section>
+  <section>
+    <h2>実測値と設定別の数値</h2>
+    <table id="cmp"></table>
+  </section>
+  <section>
+    <details><summary>200G失敗が起きる確率の早見表（AT後・0〜99G/100〜199Gの回数別）</summary>
+      <table id="lrt" style="margin-top:8px"></table>
+    </details>
+  </section>
+  <section>
+    <button class="reset" id="reset">データをリセット</button>
+    <div class="note">誤タップ防止のため2回押しでリセットします。</div>
+  </section>
+  <footer>数値の出典：1geki・なな徹・ちょんぼりすた・DMMぱちタウンの解析、Origami-Slot「スマスロ ガルパン 設定判別６選」。CZ・ATは「ATはCZ成功から入る」前提で計算しています。200G判定は、高確Bに残っていたときに200〜299Gで失敗が見える割合を60%と仮定して、失敗・通過の両方から計算しています。シミュレーションでは、通常時2000GでCZ・ATだけなら4以上かどうかの正解率は約60%、200G判定を両方記録すると約69%に上がり、表示の％もおおむね実際の割合と一致しました。結果は目安としてお使いください。<span class="unoff">非公式のファンメイドツールです。デザインはオリジナルで、作品のキャラクター・ロゴは使っていません。</span></footer>
+</div>
+
+<nav>
+  <button class="on" data-t="t-count"><span class="ic">＋</span>カウント</button>
+  <button data-t="t-200"><span class="ic">⚠︎</span>200G判定</button>
+  <button data-t="t-hint"><span class="ic">★</span>示唆</button>
+  <button data-t="t-res"><span class="ic">▮</span>結果</button>
+</nav>
+
+<script>
+(function(){
+  // iPhone Safari / ホーム画面起動時のタップ補助。
+  // 通常のclickが発生した場合は何もしないため、二重操作を防ぎます。
+  let recentNativeClick = false;
+  document.addEventListener('click', function(){
+    recentNativeClick = true;
+    setTimeout(function(){ recentNativeClick = false; }, 450);
+  }, true);
+  document.addEventListener('touchend', function(e){
+    const target = e.target && e.target.nodeType === 1 ? e.target : e.target.parentElement;
+    if (!target) return;
+    const control = target.closest('button, summary, .chip');
+    if (!control || control.disabled) return;
+    setTimeout(function(){
+      if (recentNativeClick) return;
+      control.dispatchEvent(new MouseEvent('click', {
+        bubbles: true, cancelable: true, view: window
+      }));
+    }, 350);
+  }, {passive:true});
+
+  const S=[1,2,3,4,5,6];
+  const CZ=[133.9,133.0,130.8,123.1,121.1,118.9];
+  const AT=[408.6,401.1,382.6,341.7,322.4,303.0];
+  const Q=S.map((s,i)=>CZ[i]/AT[i]);                 // CZ→AT成功率
+  const RACE=[0.297,0.340,0.383,0.438,0.469,0.500];   // 設定変更後初回CZのレース率
+  const CHANCE=[0.699,0.656,0.613,0.559,0.527,0.496];
+  const MAHO=[0.109,0.115,0.122,0.133,0.136,0.139];
+  // 弱チェ・連続演出失敗で状態が上がらない確率
+  const STAY_N=[0.805,0.793,0.777,0.637,0.617,0.598]; // 通常滞在時
+  const STAY_A=[0.898,0.891,0.867,0.781,0.766,0.750]; // 高確A滞在時
+  const START_N={at:0.797,cz:1.0};                    // 区間開始時に通常にいる確率
+  const HINTS=[
+    {id:'z2',g:2,n:'2ゾロ'},{id:'e2',g:2,n:'終了画面(2以上)'},{id:'h2',g:2,n:'隠れ凪 青'},
+    {id:'z3',g:3,n:'3ゾロ'},{id:'e3',g:3,n:'終了画面(3以上)'},{id:'h3',g:3,n:'隠れ凪 緑'},
+    {id:'z4',g:4,n:'4ゾロ'},{id:'e4',g:4,n:'終了画面(4以上)'},{id:'m4',g:4,n:'444枚OVER'},{id:'h4',g:4,n:'隠れ凪 赤'},{id:'ed4',g:4,n:'ED終了画面(4以上)'},
+    {id:'z5',g:5,n:'5ゾロ'},{id:'e5',g:5,n:'終了画面(5以上)'},{id:'m5',g:5,n:'555枚OVER'},{id:'h5',g:5,n:'隠れ凪 銀'},
+    {id:'z6',g:6,n:'6ゾロ'},{id:'e6',g:6,n:'終了画面(6)'},{id:'m6',g:6,n:'666枚OVER'},{id:'h6',g:6,n:'隠れ凪 金'}
+  ];
+  const KEY='garupan-hanbetsu-v1';
+  const blank=()=>({games:0,c:{cz:0,at:0,rw:0,maho:0,t2:0,ip:0,hs:0},first:'',hints:{},start:'at',k1:4,k2:4,ev:[],use200:true});
+  let st=blank();
+  try{const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s) st=Object.assign(blank(),s,{c:Object.assign(blank().c,s.c||{})});}catch(e){}
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}};
+  const $=id=>document.getElementById(id);
+
+  // タブ
+  document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id===b.dataset.t));
+    window.scrollTo(0,0);
+  }));
+  // カウンター
+  document.body.addEventListener('click',e=>{
+    const b=e.target.closest('button[data-c]'); if(!b) return;
+    const id=b.dataset.c; st.c[id]=Math.max(0,(st.c[id]||0)+(+b.dataset.d)); render();
+  });
+  const g=$('games');
+  g.addEventListener('input',()=>{st.games=Math.max(0,parseInt(g.value||'0',10)||0); render(false);});
+  document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>{st.games=Math.max(0,(st.games||0)+(+b.dataset.add)); render();}));
+  // セグメント
+  function seg(id,key){ const el=$(id); el.addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; st[key]=b.dataset.v;
+      if(key==='start'){ const d=st.start==='at'?4:3; st.k1=d; st.k2=d; } render();}); }
+  seg('segFirst','first'); seg('segStart','start');
+  // 200G
+  document.querySelectorAll('[data-k]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.k; st[k]=Math.max(0,Math.min(15,(st[k]||0)+(+b.dataset.d))); render();}));
+  const pFail=(start,k1,k2,i)=>START_N[start]*Math.pow(STAY_N[i],k1)*Math.pow(STAY_A[i],k2);
+  const FA=0.6; // 高確Bに残っていたときに200〜299Gで失敗が目に見える割合（推定）
+  $('add200').addEventListener('click',()=>{ st.ev.push({start:st.start,k1:st.k1,k2:st.k2,fail:true}); render(); });
+  $('add200ok').addEventListener('click',()=>{ st.ev.push({start:st.start,k1:st.k1,k2:st.k2,fail:false}); render(); });
+  $('log200').addEventListener('click',e=>{const b=e.target.closest('button[data-del]'); if(!b) return; st.ev.splice(+b.dataset.del,1); render();});
+  $('use200').addEventListener('change',e=>{st.use200=e.target.checked; render();});
+  // 示唆チップ
+  HINTS.forEach(h=>{const b=document.createElement('button'); b.className='chip'; b.textContent=h.n; b.dataset.id=h.id;
+    b.addEventListener('click',()=>{st.hints[h.id]=!st.hints[h.id]; render();});
+    document.querySelector('.chips[data-g="'+h.g+'"]').appendChild(b);});
+  // リセット
+  const rb=$('reset'); let armed=false,tm=null;
+  rb.addEventListener('click',()=>{ if(!armed){armed=true;rb.classList.add('armed');rb.textContent='もう一度押すとリセット';tm=setTimeout(()=>{armed=false;rb.classList.remove('armed');rb.textContent='データをリセット';},3000);return;}
+    clearTimeout(tm);armed=false;rb.classList.remove('armed');rb.textContent='データをリセット'; st=blank(); render(); });
+
+  const lb=(k,n,p)=>{ if(n<=0) return 0; k=Math.min(k,n); return k*Math.log(p)+(n-k)*Math.log(1-p); };
+  let warnMsg='';
+  function calc(){
+    const n=st.games||0, cz=st.c.cz||0, at=st.c.at||0;
+    warnMsg = at>cz ? '※AT初当たりがCZ回数より多くなっています（1111G天井での当選以外はCZを経由します）。' : '';
+    const sel=HINTS.filter(h=>st.hints[h.id]).map(h=>h.g);
+    const minG=sel.length?Math.max(...sel):1;
+    const ll=S.map((s,i)=>{
+      if(s<minG) return -Infinity;
+      let v=lb(cz,Math.max(n,cz),1/CZ[i]) + lb(Math.min(at,cz),cz,Q[i]);
+      if(st.first==='race') v+=Math.log(RACE[i]); else if(st.first==='chance') v+=Math.log(CHANCE[i]);
+      if(st.c.rw>0) v+=lb(Math.min(st.c.maho,st.c.rw),st.c.rw,MAHO[i]);
+      if(st.use200) st.ev.forEach(e=>{ const p=pFail(e.start,e.k1,e.k2,i)*FA; v+=Math.log(e.fail===false?1-p:p); });
+      return v;
+    });
+    const mx=Math.max(...ll); if(!isFinite(mx)) return null;
+    const w=ll.map(x=>isFinite(x)?Math.exp(x-mx):0), sm=w.reduce((a,b)=>a+b,0);
+    return w.map(x=>x/sm);
+  }
+  const den=(k,n)=>(!k||!n)?'—':'1/'+(n/k).toFixed(1);
+
+  function render(sync=true){
+    if(sync) g.value=st.games;
+    ['cz','at','rw','maho','t2','ip','hs'].forEach(k=>$('n_'+k).textContent=st.c[k]||0);
+    document.querySelectorAll('#segFirst button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.first));
+    document.querySelectorAll('#segStart button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.start));
+    $('k1').textContent=st.k1; $('k2').textContent=st.k2; $('use200').checked=!!st.use200;
+    document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on',!!st.hints[b.dataset.id]));
+    // 200G プレビュー
+    const p2=pFail(st.start,st.k1,st.k2,1), p5=pFail(st.start,st.k1,st.k2,4);
+    $('prev').textContent='この回数で200G時点に高確Bのまま（失敗が起きうる状態）の確率：設定2 '+(p2*100).toFixed(1)+'%／設定5 '+(p5*100).toFixed(1)+'%（約'+(p2/p5).toFixed(1)+'倍）';
+    $('log200').innerHTML=st.ev.map((e,i)=>'<div class="it"><span>'+(i+1)+'. '+(e.fail===false?'<b style="color:var(--ok)">通過</b>':'<b style="color:var(--yel)">失敗</b>')+'　'+(e.start==='at'?'AT後':'CZ後')+'　0〜99G '+e.k1+'回／100〜199G '+e.k2+'回</span><button data-del="'+i+'">削除</button></div>').join('');
+    const nev=st.ev.filter(e=>e.fail!==false).length, nok=st.ev.filter(e=>e.fail===false).length;
+    const w=$('w200'); w.hidden=!(nev>0&&nok===0); w.textContent='※失敗だけが記録されています。失敗しなかった区間も「通過」で記録しないと、低設定寄りに出すぎます。';
+    $('mSig').innerHTML='<span class="lamp '+(nev>=1?(nev>=2?'r':'y'):'')+'"></span><span class="lamp '+(nev>=2?'r':'')+'"></span>';
+
+    const post=calc();
+    $('conflict').hidden=!!post;
+    const bars=$('bars'); bars.innerHTML=''; const sp=$('mSpark'); sp.innerHTML='';
+    if(post){
+      S.forEach((s,i)=>{const p=post[i]*100;
+        bars.insertAdjacentHTML('beforeend','<div class="b"><div class="s">設定'+s+'</div><div class="track"><div class="fill" style="width:'+Math.max(p,0.5).toFixed(1)+'%"></div></div><div class="pct">'+p.toFixed(1)+'%</div></div>');
+        sp.insertAdjacentHTML('beforeend','<i class="'+(i>=3?'h':'')+'" style="height:'+Math.max(2,p*0.6+2).toFixed(0)+'px"></i>');});
+      $('mHi').textContent=((post[3]+post[4]+post[5])*100).toFixed(0)+'%';
+      $('mEx').textContent=post.reduce((a,p,i)=>a+p*(i+1),0).toFixed(2);
+      const n=st.games||0;
+      $('hint').textContent=(warnMsg?warnMsg+' ':'')+(n<1000?'※1000G未満はぶれが大きいです。':(n<2000?'※動画の目安では2000G程度で高低の判断がしやすくなります。':''));
+    } else { $('mHi').textContent='—'; $('mEx').textContent='—'; $('hint').textContent=''; }
+
+    // 比較表
+    const n=st.games||0, cz=st.c.cz||0, at=st.c.at||0;
+    const near=(obs,arr,lg)=>{ if(!obs) return -1; let b=-1,bd=1e9; arr.forEach((d,i)=>{const df=lg?Math.abs(Math.log(d)-Math.log(obs)):Math.abs(d-obs); if(df<bd){bd=df;b=i;}}); return b; };
+    const nc=near(cz&&n?n/cz:0,CZ,true), na=near(at&&n?n/at:0,AT,true), nq=near(cz?at/cz:0,Q,false);
+    const cell=(v,i,b)=>'<td style="'+(i===b?'color:var(--acc);font-weight:700':'')+'">'+v+'</td>';
+    let h='<tr><th>項目</th><th>実測</th>'+S.map(s=>'<th>'+s+'</th>').join('')+'</tr>';
+    h+='<tr><td>CZ</td><td>'+den(cz,n)+'</td>'+CZ.map((d,i)=>cell(d,i,nc)).join('')+'</tr>';
+    h+='<tr><td>AT</td><td>'+den(at,n)+'</td>'+AT.map((d,i)=>cell(Math.round(d),i,na)).join('')+'</tr>';
+    h+='<tr><td>CZ成功率</td><td>'+(cz?(at/cz*100).toFixed(0)+'%':'—')+'</td>'+Q.map((d,i)=>cell((d*100).toFixed(0)+'%',i,nq)).join('')+'</tr>';
+    $('cmp').innerHTML=h;
+    // 早見表
+    let t='<tr><th>0〜99G／100〜199G</th>'+S.map(s=>'<th>'+s+'</th>').join('')+'</tr>';
+    [[2,2],[3,3],[4,4],[5,5],[6,6]].forEach(([a,b])=>{ t+='<tr><td>'+a+'回／'+b+'回</td>'+S.map((s,i)=>'<td>'+(pFail('at',a,b,i)*100).toFixed(1)+'%</td>').join('')+'</tr>'; });
+    $('lrt').innerHTML=t;
+    save();
+  }
+  render();
+})();
+</script>
+</body>
+</html>
